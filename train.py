@@ -1,9 +1,9 @@
 import os
 import time
 
+import torch
 from torch import load
 from torch.optim import Adam
-import torch
 from torchvision.transforms.functional import to_pil_image
 
 from model import feature_matching_loss, generator_loss, cycle_consistency_loss, discriminator_loss, identity_loss, \
@@ -198,8 +198,8 @@ class Trainer:
         return self.generator_g(image) if generator == 'g' else self.generator_f(image)
 
     def evaluate(self, test_dataloader, dataset='facades'):
-        """Evaluate the model."""
-        for i, (map, facade) in test_dataloader:
+        """Evaluate the model Using FID and KID."""
+        for i, (map, facade) in enumerate(test_dataloader):
             map = map.to(self.device)
             facade = facade.to(self.device)
 
@@ -214,16 +214,16 @@ class Trainer:
                 os.makedirs(f'out/{dataset}/A')
                 os.makedirs(f'out/{dataset}/B')
 
-            generated_map = self.generate(x, 'f')[7]
+            generated_map = self.generate(x, 'f')[0]
             to_pil_image(generated_map).save(f"out/{dataset}/B/{i}.png")
 
-            generated_facade = self.generate(y, 'f')[7]
+            generated_facade = self.generate(y, 'f')[0]
             to_pil_image(generated_facade).save(f"out/{dataset}/A/{i}.png")
 
-        total_fid = fid.compute_fid(f'datasets/{dataset}/test/A', f'out/{dataset}/A') + \
-                    fid.compute_fid(f'datasets/{dataset}/test/B', f'out/{dataset}/B')
-        total_kid = fid.compute_kid(f'datasets/{dataset}/test/A', f'out/{dataset}/A') + \
-                    fid.compute_kid(f'datasets/{dataset}/test/B', f'out/{dataset}/B')
+        total_fid = fid.compute_fid(f'datasets/{dataset}/testA', f'out/{dataset}/A') + \
+                    fid.compute_fid(f'datasets/{dataset}/testB', f'out/{dataset}/B')
+        total_kid = fid.compute_kid(f'datasets/{dataset}/testA', f'out/{dataset}/A') + \
+                    fid.compute_kid(f'datasets/{dataset}/testB', f'out/{dataset}/B')
 
         print("FID score: ", total_fid / 2)
         print("KID score: ", total_kid / 2)

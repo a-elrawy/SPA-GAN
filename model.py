@@ -90,7 +90,7 @@ class Generator(nn.Module):
         # decoding and adding the residual connections
         for decode, skip in zip(deconvs, skips):
             x = self.leaky_relu(decode(x))
-            x = torch.cat([x, skip])
+            x = torch.cat([x, skip], dim=1)
 
         x = torch.tanh(self.last(x))
         return (x, feature_map_l) if return_feat else x
@@ -106,13 +106,13 @@ class Discriminator(nn.Module):
         self.conv3 = conv(conv_dim * 2, conv_dim * 4, 4)
         self.zero_pad = nn.ZeroPad2d
         self.conv4 = conv(conv_dim * 4, conv_dim * 8, 4, stride=1)
-
+        self.relu = nn.ReLU()
         # Classification layer
         self.fc = conv(conv_dim * 8, 1, 4, 1, 1, False)
 
     def forward(self, x, return_feature_map=False):
         for conv_ in [self.conv1, self.conv2, self.conv3]:
-            x = conv_(x)
+            x = self.relu(conv_(x))
         self.zero_pad(x)
         out = F.leaky_relu(self.conv4(x), 0.05)
 
