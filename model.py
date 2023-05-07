@@ -63,14 +63,14 @@ class Generator(nn.Module):
 
         # decoding blocks
         self.deconv1 = de_conv(conv_dim * 8, conv_dim * 8, 4, apply_dropout=True)
-        self.deconv2 = de_conv(conv_dim * 8, conv_dim * 8, 4, apply_dropout=True)
-        self.deconv3 = de_conv(conv_dim * 8, conv_dim * 8, 4, apply_dropout=True)
-        self.deconv4 = de_conv(conv_dim * 8, conv_dim * 8, 4)
-        self.deconv5 = de_conv(conv_dim * 8, conv_dim * 4, 4)
-        self.deconv6 = de_conv(conv_dim * 4, conv_dim * 2, 4)
-        self.deconv7 = de_conv(conv_dim * 2, conv_dim, 4)
+        self.deconv2 = de_conv(conv_dim * 8 * 2, conv_dim * 8, 4, apply_dropout=True)
+        self.deconv3 = de_conv(conv_dim * 8 * 2, conv_dim * 8, 4, apply_dropout=True)
+        self.deconv4 = de_conv(conv_dim * 8 * 2, conv_dim * 8, 4)
+        self.deconv5 = de_conv(conv_dim * 8 * 2, conv_dim * 4, 4)
+        self.deconv6 = de_conv(conv_dim * 4 * 2, conv_dim * 2, 4)
+        self.deconv7 = de_conv(conv_dim * 2 * 2, conv_dim, 4)
 
-        self.last = nn.ConvTranspose2d(conv_dim, 3, 4, 2, 1)
+        self.last = nn.ConvTranspose2d(conv_dim * 2, 3, 4, 2, 1)
         nn.init.normal_(self.last.weight, 0, 0.02)
 
     def forward(self, x, return_feat=False):
